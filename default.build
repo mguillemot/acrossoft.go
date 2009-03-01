@@ -4,6 +4,7 @@
   <!-- for TeamCity -->
   <property name="teamcity_dotnet_use_msbuild_v35" value="true" />
   <property name="nant.settings.currentframework" value="net-3.5" />
+  <property name="debug" value="true" />
 
   <target name="all" depends="package" />
 
