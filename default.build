@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?> 
+<project name="Acrossoft.Go" default="all">
+
+	<target name="all" depends="package" />
+
+  <target name="build">
+    <exec basedir="C:\WINDOWS\Microsoft.NET\Framework\v3.5" program="MSBuild.exe">
+      <arg value="Go.sln"/>
+    </exec>
+  </target>
+
+  <target name="package" depends="build">
+    <exec basedir="C:\Program Files\Common Files\Microsoft Shared\XNA\XnaPack" program="XnaPack.exe">
+      <arg value="Acrossoft.Go\bin\x86\Release\Acrossoft.Go.exe"/>
+    </exec>
+  </target>
+
+</project>
