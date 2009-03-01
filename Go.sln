@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Acrossoft.Go", "Acrossoft.Go.csproj", "{FE56FF34-E0E7-4E60-AE8D-6F2B73980CC5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Acrossoft.Go", "Acrossoft.Go\Acrossoft.Go.csproj", "{FE56FF34-E0E7-4E60-AE8D-6F2B73980CC5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Acrossoft.Engine", "..\Acrossoft.Engine\Acrossoft.Engine.csproj", "{6D1F6E50-5EC4-4F92-B557-CCB8FACF5EB0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Acrossoft.Engine", "Acrossoft.Engine\Acrossoft.Engine.csproj", "{6D1F6E50-5EC4-4F92-B557-CCB8FACF5EB0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
