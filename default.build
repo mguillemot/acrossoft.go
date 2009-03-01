@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8" ?> 
 <project name="Acrossoft.Go" default="all">
 
-  <!-- for TeamCity -->
-  <property name="teamcity_dotnet_use_msbuild_v35" value="true" />
-  <property name="nant.settings.currentframework" value="net-3.5" />
+  <!-- Script configuration -->
+  <!--<property name="nant.settings.currentframework" value="net-3.5" />-->
   <property name="debug" value="true" />
 
   <target name="all" depends="package" />
 
   <target name="build">
-    <msbuild project="Go.sln"/>
-  </target>
+    <msbuild project="Go.sln">
+      <property name="teamcity_dotnet_use_msbuild_v35" value="true" />
+    </msbuild
+    </target>
 
   <target name="package" depends="build">
     <exec basedir="C:\Program Files\Common Files\Microsoft Shared\XNA\XnaPack" program="XnaPack.exe">
