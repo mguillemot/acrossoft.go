@@ -81,6 +81,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Console\Console.cs" />
+    <Compile Include="Console\ConsoleComponent.cs" />
+    <Compile Include="Console\ConsoleDisplay.cs" />
+    <Compile Include="Controls\ControlsComponent.cs" />
+    <Compile Include="Controls\ControlsConfig.cs" />
+    <Compile Include="Controls\ControlsState.cs" />
+    <Compile Include="Controls\FunctionConfig.cs" />
+    <Compile Include="Controls\Functions.cs" />
+    <Compile Include="Controls\IControlsProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -125,6 +134,9 @@
       <ProductName>Microsoft XNA Framework Redistributable 3.0</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Content\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />

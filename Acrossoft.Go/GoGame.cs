@@ -1,3 +1,5 @@
+using Acrossoft.Engine.Console;
+using Acrossoft.Engine.Controls;
 using Acrossoft.Go.Display;
 using Acrossoft.Go.Game;
 using Microsoft.Xna.Framework;
@@ -23,6 +25,9 @@ namespace Acrossoft.Go
             graphics.PreferredBackBufferHeight = 720;
 
             Content.RootDirectory = "Content";
+
+            Components.Add(new ControlsComponent(this));
+            Components.Add(new ConsoleComponent(this));
         }
 
         /// <summary>
@@ -47,6 +52,8 @@ namespace Acrossoft.Go
             }
 
             base.Initialize();
+
+            Console.WriteLine("Initialized.");
         }
 
         /// <summary>
