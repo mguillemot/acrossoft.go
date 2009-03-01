@@ -3,8 +3,9 @@
 
   <!-- for TeamCity -->
   <property name="teamcity_dotnet_use_msbuild_v35" value="true" />
-  
-	<target name="all" depends="package" />
+  <property name="nant.settings.currentframework" value="net-3.5" />
+
+  <target name="all" depends="package" />
 
   <target name="build">
     <msbuild project="Go.sln"/>
