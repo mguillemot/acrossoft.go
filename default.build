@@ -10,7 +10,7 @@
   <target name="build">
     <msbuild project="Go.sln">
       <property name="teamcity_dotnet_use_msbuild_v35" value="true" />
-      <property name="Configuration" value="Relase"/>
+      <property name="Configuration" value="Release"/>
     </msbuild>
   </target>
 
