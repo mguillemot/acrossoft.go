@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?> 
 <project name="Acrossoft.Go" default="all">
 
+  <!-- for TeamCity -->
+  <property name="teamcity_dotnet_use_msbuild_v35" value="true" />
+  
 	<target name="all" depends="package" />
 
   <target name="build">
-    <exec basedir="C:\WINDOWS\Microsoft.NET\Framework\v3.5" program="MSBuild.exe">
-      <arg value="Go.sln"/>
-    </exec>
+    <msbuild project="Go.sln"/>
   </target>
 
   <target name="package" depends="build">
