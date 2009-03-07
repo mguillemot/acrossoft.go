@@ -2,6 +2,8 @@ using Acrossoft.Engine.Console;
 using Acrossoft.Engine.Controls;
 using Acrossoft.Go.Display;
 using Acrossoft.Go.Game;
+using Acrossoft.GoAi;
+using Acrossoft.GoUtils;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;

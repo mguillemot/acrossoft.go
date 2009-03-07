@@ -1,4 +1,6 @@
-﻿namespace Acrossoft.Go.Game
+﻿using Acrossoft.GoUtils;
+
+namespace Acrossoft.Go.Game
 {
     public class BoardControl
     {
