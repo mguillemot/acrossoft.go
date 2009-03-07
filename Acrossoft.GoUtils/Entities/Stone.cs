@@ -1,4 +1,4 @@
-﻿namespace Acrossoft.GoUtils
+﻿namespace Acrossoft.GoUtils.Entities
 {
     public enum Stone
     {

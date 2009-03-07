@@ -68,6 +68,9 @@
     <Reference Include="System">
       <Private>False</Private>
     </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml">
       <Private>False</Private>
     </Reference>
@@ -82,7 +85,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entities\Board.cs" />
+    <Compile Include="Entities\BoardEx.cs" />
     <Compile Include="Entities\Group.cs" />
+    <Compile Include="Entities\Direction.cs" />
     <Compile Include="Entities\Stone.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

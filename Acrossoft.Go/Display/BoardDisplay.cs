@@ -1,5 +1,5 @@
 ﻿using Acrossoft.Go.Game;
-using Acrossoft.GoUtils;
+using Acrossoft.GoUtils.Entities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;

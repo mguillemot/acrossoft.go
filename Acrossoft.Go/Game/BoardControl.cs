@@ -1,4 +1,4 @@
-﻿using Acrossoft.GoUtils;
+﻿using Acrossoft.GoUtils.Entities;
 
 namespace Acrossoft.Go.Game
 {

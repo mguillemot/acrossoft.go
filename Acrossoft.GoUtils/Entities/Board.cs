@@ -1,4 +1,4 @@
-﻿namespace Acrossoft.GoUtils
+﻿namespace Acrossoft.GoUtils.Entities
 {
     public class Board
     {
@@ -38,5 +38,7 @@
         {
             m_content[x - 1][y - 1] = value;
         }
+
+
     }
 }
