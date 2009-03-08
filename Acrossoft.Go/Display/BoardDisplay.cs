@@ -14,6 +14,7 @@ namespace Acrossoft.Go.Display
 
         private readonly Board m_board;
         private BufferedGeometryRenderer m_renderer;
+        private Point m_cursorPosition;
 
         public BoardDisplay(Board board)
         {
@@ -71,7 +72,7 @@ namespace Acrossoft.Go.Display
                     }
                 }
             }
-            DrawCursorAt(position, gridCellSize, 1, 1);
+            DrawCursorAt(position, gridCellSize, m_cursorPosition.X, m_cursorPosition.Y);
             m_renderer.End();
         }
 
@@ -98,6 +99,11 @@ namespace Acrossoft.Go.Display
             m_renderer.DrawLine(bottomLeftCorner, new Point(bottomLeftCorner.X + cursorCornerSize, bottomLeftCorner.Y), Color.Red);
             m_renderer.DrawLine(bottomRightCorner, new Point(bottomRightCorner.X, bottomRightCorner.Y - cursorCornerSize), Color.Red);
             m_renderer.DrawLine(bottomRightCorner, new Point(bottomRightCorner.X - cursorCornerSize, bottomRightCorner.Y), Color.Red);
+        }
+
+        public void SetCursorPosition(Point position)
+        {
+            m_cursorPosition = position ;
         }
     }
 }

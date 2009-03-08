@@ -39,6 +39,5 @@
             m_content[x - 1][y - 1] = value;
         }
 
-
     }
 }
