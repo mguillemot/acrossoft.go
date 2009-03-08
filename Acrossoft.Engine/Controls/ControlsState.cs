@@ -127,12 +127,21 @@ namespace Acrossoft.Engine.Controls
                 foreach (Buttons button in ALL_BUTTONS)
                 {
                     bool buttonDown = IsButtonDown(padState, button);
-                    bool previouslyDown = previouslyPressedButtons.ContainsKey(button);
-                    if (buttonDown && !previouslyDown)
+                    if (buttonDown)
                     {
-                        m_pressedButtons.Add(button, DateTime.Now.Ticks);
+                        long time;
+                        if (previouslyPressedButtons.TryGetValue(button, out time))
+                        {
+                            m_pressedButtons.Add(button, time);
+                        }
+                        else
+                        {
+                            m_justPressedButtons.Add(button);
+                            m_pressedButtons.Add(button, DateTime.Now.Ticks);
+                        }
                     }
-                    else if (!buttonDown && previouslyDown)
+                    bool previouslyDown = previouslyPressedButtons.ContainsKey(button);
+                    if (previouslyDown && !buttonDown)
                     {
                         m_justReleasedButtons.Add(button);
                     }

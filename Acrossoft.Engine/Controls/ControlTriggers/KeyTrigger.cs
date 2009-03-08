@@ -2,20 +2,20 @@
 
 namespace Acrossoft.Engine.Controls.ControlTriggers
 {
-    public class KeyReleaseTrigger : ControlTrigger
+    public class KeyTrigger : ControlTrigger
     {
         private readonly Keys m_key;
 
         private bool m_triggered;
 
-        public KeyReleaseTrigger(Keys key)
+        public KeyTrigger(Keys key)
         {
             m_key = key;
         }
 
         internal override void Update(ControlsState state)
         {
-            m_triggered = state.JustReleasedKeys.Contains(m_key);
+            m_triggered = state.JustPressedKeys.Contains(m_key);
         }
 
         public override bool IsTriggered

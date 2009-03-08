@@ -68,7 +68,6 @@
     <Reference Include="System">
       <Private>False</Private>
     </Reference>
-    <Reference Include="System.Data" />
     <Reference Include="System.Xml">
       <Private>False</Private>
     </Reference>
@@ -89,10 +88,17 @@
     <Compile Include="Controls\ControlsConfig.cs" />
     <Compile Include="Controls\ControlsState.cs" />
     <Compile Include="Controls\ControlTriggers\ControlTrigger.cs" />
-    <Compile Include="Controls\ControlTriggers\KeyReleaseTrigger.cs" />
+    <Compile Include="Controls\ControlTriggers\ButtonTrigger.cs" />
+    <Compile Include="Controls\ControlTriggers\KeyTrigger.cs" />
+    <Compile Include="Controls\ControlTriggers\RepeatableButtonTrigger.cs" />
     <Compile Include="Controls\ControlTriggers\RepeatableKeyTrigger.cs" />
     <Compile Include="Controls\Function.cs" />
     <Compile Include="Controls\IControlsProvider.cs" />
+    <Compile Include="Network\IMessageDispatcher.cs" />
+    <Compile Include="Network\IMessageProcessor.cs" />
+    <Compile Include="Network\Message.cs" />
+    <Compile Include="Network\MessageDispatcherComponent.cs" />
+    <Compile Include="Network\NetworkMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Screens\Screen.cs" />
   </ItemGroup>

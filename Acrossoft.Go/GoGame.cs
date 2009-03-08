@@ -1,11 +1,14 @@
 using Acrossoft.Engine.Console;
 using Acrossoft.Engine.Controls;
+using Acrossoft.Engine.Network;
 using Acrossoft.Go.Display;
 using Acrossoft.Go.Game;
+using Acrossoft.Go.Network;
 using Acrossoft.Go.Screens;
 using Acrossoft.GoAi;
 using Acrossoft.GoUtils.Entities;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -16,19 +19,23 @@ namespace Acrossoft.Go
     /// </summary>
     public class GoGame : Microsoft.Xna.Framework.Game
     {
-        private readonly GraphicsDeviceManager graphics;
-
         public GoGame()
         {
-            graphics = new GraphicsDeviceManager(this);
-            graphics.PreferredBackBufferWidth = 1280;
-            graphics.PreferredBackBufferHeight = 720;
+            var graphics = new GraphicsDeviceManager(this)
+                           {
+                               PreferredBackBufferWidth = 1280,
+                               PreferredBackBufferHeight = 720
+                           };
 
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
 
+            Components.Add(new GamerServicesComponent(this));
             Components.Add(new ControlsComponent(this));
-            Components.Add(new BoardScreen(this));
+            Components.Add(new NetworkComponent(this));
+            Components.Add(new MessageDispatcherComponent(this));
+            Components.Add(new GameSessionComponent(this));
+            Components.Add(new BoardScreen(this)); // current screen
             Components.Add(new ConsoleComponent(this));
         }
 

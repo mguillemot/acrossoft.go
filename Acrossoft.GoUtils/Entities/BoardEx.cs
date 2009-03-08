@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Microsoft.Xna.Framework;
 
 namespace Acrossoft.GoUtils.Entities
@@ -137,7 +135,7 @@ namespace Acrossoft.GoUtils.Entities
         public int GetLibertyCount(Group group)
         {
             //int id = GetGroupIndex(group.At(0));
-            HashSet<Point> libset = new HashSet<Point>() ; // en esperant ne pas comparer les pointeurs ^^
+            Utils.HashSet<Point> libset = new Utils.HashSet<Point>(); // en esperant ne pas comparer les pointeurs ^^
             for (int i = 0; i < group.Count; ++i)
             {
                 Point p = group.At(i);
@@ -250,7 +248,7 @@ namespace Acrossoft.GoUtils.Entities
             m_groupmap[p.X][p.Y] = id;
 
             // list groups touched
-            HashSet<Group> touchedgroups = new HashSet<Group>();
+            Utils.HashSet<Group> touchedgroups = new Utils.HashSet<Group>();
             for (Dir d = Dir.LEFT; d <= Dir.DOWN; ++d)
             {
                 Point p1 = Op.Translate(p, d);
@@ -262,9 +260,8 @@ namespace Acrossoft.GoUtils.Entities
 
             List<Group> opponents = new List<Group>();
             List<Group> friends = new List<Group>();
-            for (int i = 0; i < touchedgroups.Count; ++i)
+            foreach (var g in touchedgroups)
             {
-                Group g = touchedgroups.ElementAt(i) ;
                 if (g.Count > 0 && (Get(g.At(0)) == color))
                     friends.Add(g);
                 else

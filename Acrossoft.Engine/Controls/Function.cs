@@ -36,7 +36,7 @@ namespace Acrossoft.Engine.Controls
 
         public void AssignKey(Keys key)
         {
-            m_triggers.Add(new KeyReleaseTrigger(key));
+            m_triggers.Add(new KeyTrigger(key));
         }
 
         public void AssignKey(Keys key, int autoInitialDelay, int autoRepeatDelay)
@@ -46,7 +46,12 @@ namespace Acrossoft.Engine.Controls
 
         public void AssignButton(Buttons button)
         {
-            //TODO
+            m_triggers.Add(new ButtonTrigger(button));
+        }
+
+        public void AssignButton(Buttons button, int autoInitialDelay, int autoRepeatDelay)
+        {
+            m_triggers.Add(new RepeatableButtonTrigger(button, autoInitialDelay, autoRepeatDelay));
         }
 
         internal void Update(ControlsState state)
