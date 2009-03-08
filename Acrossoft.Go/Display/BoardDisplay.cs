@@ -13,7 +13,10 @@ namespace Acrossoft.Go.Display
         private static Texture2D s_whiteStoneTexture;
 
         private readonly Board m_board;
+        private Point m_position;
+        private int m_size;
         private BufferedGeometryRenderer m_renderer;
+        private bool m_showCursor;
         private Point m_cursorPosition;
 
  //       private string m_infos;
@@ -21,6 +24,24 @@ namespace Acrossoft.Go.Display
         public BoardDisplay(Board board)
         {
             m_board = board;
+        }
+
+        public Point Position
+        {
+            get { return m_position; }
+            set { m_position = value; }
+        }
+
+        public int Size
+        {
+            get { return m_size; }
+            set { m_size = value; }
+        }
+
+        public bool ShowCursor
+        {
+            get { return m_showCursor; }
+            set { m_showCursor = value; }
         }
 
         public static void LoadContent(ContentManager contentManager)
@@ -35,14 +56,14 @@ namespace Acrossoft.Go.Display
             m_renderer = new BufferedGeometryRenderer(device);
         }
 
-        public void Draw(Point position, int size)
+        public void Draw()
         {
-            float gridCellSize = (float) size/(m_board.Size + 1);
+            float gridCellSize = (float) Size/(m_board.Size + 1);
             var gridSize = (int) ((m_board.Size - 1)*gridCellSize);
-            var gridCorner = new Point(position.X + (int) gridCellSize, position.Y + (int) gridCellSize);
+            var gridCorner = new Point(Position.X + (int)gridCellSize, Position.Y + (int)gridCellSize);
             m_renderer.Begin();
-            m_renderer.FillRectangle(new Rectangle(position.X, position.Y, size, size), new Color(219, 178, 91));
-            m_renderer.DrawRectangle(new Rectangle(position.X, position.Y, size, size), Color.Black);
+            m_renderer.FillRectangle(new Rectangle(Position.X, Position.Y, Size, Size), new Color(219, 178, 91));
+            m_renderer.DrawRectangle(new Rectangle(Position.X, Position.Y, Size, Size), Color.Black);
             for (int i = 0; i < m_board.Size; i++)
             {
                 int x = gridCorner.X + (int) (i*gridCellSize);
@@ -50,31 +71,34 @@ namespace Acrossoft.Go.Display
                 m_renderer.DrawLine(new Point(x, gridCorner.Y), new Point(x, gridCorner.Y + gridSize), Color.Black);
                 m_renderer.DrawLine(new Point(gridCorner.X, y), new Point(gridCorner.X + gridSize, y), Color.Black);
             }
-            DrawPointAt(position, gridCellSize, 3, 3);
-            DrawPointAt(position, gridCellSize, 9, 3);
-            DrawPointAt(position, gridCellSize, 15, 3);
-            DrawPointAt(position, gridCellSize, 3, 9);
-            DrawPointAt(position, gridCellSize, 9, 9);
-            DrawPointAt(position, gridCellSize, 15, 9);
-            DrawPointAt(position, gridCellSize, 3, 15);
-            DrawPointAt(position, gridCellSize, 9, 15);
-            DrawPointAt(position, gridCellSize, 15, 15);
+            DrawPointAt(Position, gridCellSize, 3, 3);
+            DrawPointAt(Position, gridCellSize, 9, 3);
+            DrawPointAt(Position, gridCellSize, 15, 3);
+            DrawPointAt(Position, gridCellSize, 3, 9);
+            DrawPointAt(Position, gridCellSize, 9, 9);
+            DrawPointAt(Position, gridCellSize, 15, 9);
+            DrawPointAt(Position, gridCellSize, 3, 15);
+            DrawPointAt(Position, gridCellSize, 9, 15);
+            DrawPointAt(Position, gridCellSize, 15, 15);
             for (int i = 1; i <= m_board.Size; i++)
             {
                 for (int j = 1; j <= m_board.Size; j++)
                 {
-                    Stone stone = m_board.Get(i-1, j-1);
+                    Stone stone = m_board[i-1, j-1];
                     if (stone != Stone.NONE)
                     {
                         Texture2D texture = (stone == Stone.BLACK) ? s_blackStoneTexture : s_whiteStoneTexture;
                         m_renderer.DrawSprite(texture,
-                                              new Rectangle(position.X + 1 + (int) ((i - 0.5f)*gridCellSize),
-                                                            position.Y + 1 + (int) ((j - 0.5f)*gridCellSize),
+                                              new Rectangle(Position.X + 1 + (int)((i - 0.5f) * gridCellSize),
+                                                            Position.Y + 1 + (int)((j - 0.5f) * gridCellSize),
                                                             (int) gridCellSize - 2, (int) gridCellSize - 2));
                     }
                 }
             }
-            DrawCursorAt(position, gridCellSize, m_cursorPosition.X, m_cursorPosition.Y);
+            if (ShowCursor)
+            {
+                DrawCursorAt(Position, gridCellSize, m_cursorPosition.X, m_cursorPosition.Y);
+            }
             m_renderer.End();
         }
 
@@ -110,5 +134,12 @@ namespace Acrossoft.Go.Display
 
 //        public void DrawInfos();
 //        public void SetInfo(string s);
+        public Point ComputePositionFromObjetCoords(int x, int y)
+        {
+            var result = new Point();
+            result.X = x * m_board.Size / m_size;
+            result.Y = y * m_board.Size / m_size;
+            return result;
+        }
     }
 }

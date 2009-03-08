@@ -35,13 +35,15 @@ namespace Acrossoft.Engine.Controls
                                                                 Buttons.Y
                                                             };
 
-        private readonly List<Buttons> m_pressedButtons = new List<Buttons>();
 
-        private readonly List<Keys> m_pressedKeys = new List<Keys>();
-        private readonly List<Buttons> m_previouslyPressedButtons = new List<Buttons>();
-        private readonly List<Keys> m_previouslyPressedKeys = new List<Keys>();
-        private readonly List<Buttons> m_releasedButtons = new List<Buttons>();
-        private readonly List<Keys> m_releasedKeys = new List<Keys>();
+        private Dictionary<Keys, long> m_pressedKeys = new Dictionary<Keys, long>();
+        private readonly List<Keys> m_justPressedKeys = new List<Keys>();
+        private readonly List<Keys> m_justReleasedKeys = new List<Keys>();
+
+        private Dictionary<Buttons, long> m_pressedButtons = new Dictionary<Buttons, long>();
+        private readonly List<Buttons> m_justPressedButtons = new List<Buttons>();
+        private readonly List<Buttons> m_justReleasedButtons = new List<Buttons>();
+
         private KeyboardState m_keyboardState;
         private GamePadState m_padState;
 
@@ -50,14 +52,19 @@ namespace Acrossoft.Engine.Controls
             get { return m_keyboardState; }
         }
 
-        public List<Keys> PressedKeys
+        public Dictionary<Keys, long> PressedKeys
         {
             get { return m_pressedKeys; }
         }
 
-        public List<Keys> ReleasedKeys
+        public List<Keys> JustPressedKeys
         {
-            get { return m_releasedKeys; }
+            get { return m_justPressedKeys; }
+        }
+
+        public List<Keys> JustReleasedKeys
+        {
+            get { return m_justReleasedKeys; }
         }
 
         public GamePadState PadState
@@ -65,62 +72,69 @@ namespace Acrossoft.Engine.Controls
             get { return m_padState; }
         }
 
-        public List<Buttons> PressedButtons
+        public Dictionary<Buttons, long> PressedButtons
         {
             get { return m_pressedButtons; }
         }
 
-        public List<Buttons> ReleasedButtons
+        public List<Buttons> JustReleasedButtons
         {
-            get { return m_releasedButtons; }
+            get { return m_justReleasedButtons; }
+        }
+
+        public List<Buttons> JustPressedButtons
+        {
+            get { return m_justPressedButtons; }
         }
 
         public void ComputeState(KeyboardState keyboardState, GamePadState padState)
         {
             // Compute newly pressed & relased key set
             m_keyboardState = keyboardState;
-            m_pressedKeys.Clear();
-            m_releasedKeys.Clear();
+            var previouslyPressedKeys = m_pressedKeys;
+            m_pressedKeys = new Dictionary<Keys, long>();
+            m_justPressedKeys.Clear();
+            m_justReleasedKeys.Clear();
             foreach (Keys key in keyboardState.GetPressedKeys())
             {
-                if (!m_previouslyPressedKeys.Contains(key))
+                long time;
+                if (previouslyPressedKeys.TryGetValue(key, out time))
                 {
-                    m_pressedKeys.Add(key);
+                    m_pressedKeys.Add(key, time);
+                }
+                else
+                {
+                    m_justPressedKeys.Add(key);
+                    m_pressedKeys.Add(key, DateTime.Now.Ticks);
                 }
             }
-            foreach (Keys key in m_previouslyPressedKeys)
+            foreach (Keys key in previouslyPressedKeys.Keys)
             {
                 if (keyboardState.IsKeyUp(key))
                 {
-                    m_releasedKeys.Add(key);
+                    m_justReleasedKeys.Add(key);
                 }
             }
-            m_previouslyPressedKeys.Clear();
-            m_previouslyPressedKeys.AddRange(keyboardState.GetPressedKeys());
 
             // Compute pad state
             m_padState = padState;
-            m_pressedButtons.Clear();
-            m_releasedButtons.Clear();
+            var previouslyPressedButtons = m_pressedButtons;
+            m_pressedButtons = new Dictionary<Buttons, long>();
+            m_justPressedButtons.Clear();
+            m_justReleasedButtons.Clear();
             if (padState.IsConnected)
             {
                 foreach (Buttons button in ALL_BUTTONS)
                 {
-                    if (IsButtonDown(padState, button) && !m_previouslyPressedButtons.Contains(button))
+                    bool buttonDown = IsButtonDown(padState, button);
+                    bool previouslyDown = previouslyPressedButtons.ContainsKey(button);
+                    if (buttonDown && !previouslyDown)
                     {
-                        m_pressedButtons.Add(button);
+                        m_pressedButtons.Add(button, DateTime.Now.Ticks);
                     }
-                    else if (!IsButtonDown(padState, button) && m_previouslyPressedButtons.Contains(button))
+                    else if (!buttonDown && previouslyDown)
                     {
-                        m_releasedButtons.Add(button);
-                    }
-                }
-                m_previouslyPressedButtons.Clear();
-                foreach (Buttons button in ALL_BUTTONS)
-                {
-                    if (IsButtonDown(padState, button))
-                    {
-                        m_previouslyPressedButtons.Add(button);
+                        m_justReleasedButtons.Add(button);
                     }
                 }
             }

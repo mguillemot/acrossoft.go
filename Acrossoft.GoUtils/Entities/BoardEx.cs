@@ -78,12 +78,12 @@ namespace Acrossoft.GoUtils.Entities
 
         public Stone Get(int x, int y)
         {
-            return m_board.Get(x,y);
+            return m_board[x, y];
         }
 
         public Stone Get(Point p)
         {
-            return m_board.Get(p.X, p.Y);
+            return m_board[p.X, p.Y];
         }
 
 
@@ -242,7 +242,7 @@ namespace Acrossoft.GoUtils.Entities
             bool kopossible = true;
 
             //put the stone, as a new lone stone group
-            m_board.Set(p.X, p.Y, color);
+            m_board[p.X, p.Y] = color;
             Group newgroup = new Group() ;
             newgroup += p;
             int id = m_grouplist.Count;
@@ -354,7 +354,7 @@ namespace Acrossoft.GoUtils.Entities
             for (int i = 0; i < g.Count; ++i)
             {
                 Point p = g.At(i) ;
-                m_board.Set(p.X, p.Y, Stone.NONE) ;
+                m_board[p.X, p.Y] = Stone.NONE;
             }
             RemoveId(id);
         }

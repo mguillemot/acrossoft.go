@@ -27,6 +27,7 @@ namespace Acrossoft.Engine.Controls
             var padState = GamePad.GetState(PlayerIndex.One);
             var keyboardState = Keyboard.GetState(PlayerIndex.One);
             m_controlsState.ComputeState(keyboardState, padState);
+            m_controlsConfig.UpdateState(m_controlsState);
         }
 
         public ControlsState CurrentState

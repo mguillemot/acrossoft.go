@@ -4,32 +4,24 @@ namespace Acrossoft.Engine.Controls
 {
     public class ControlsConfig
     {
-        private readonly Dictionary<int, FunctionConfig> m_controls = new Dictionary<int, FunctionConfig>();
+        private readonly List<Function> m_functions = new List<Function>();
 
-        public FunctionConfig GetFunctionConfig(int function)
+        public void RegisterFunction(Function function)
         {
-            FunctionConfig result;
-            if (!m_controls.TryGetValue(function, out result))
+            m_functions.Add(function);
+        }
+
+        public void UnregisterFunction(Function function)
+        {
+            m_functions.Remove(function);
+        }
+
+        public void UpdateState(ControlsState state)
+        {
+            foreach (var function in m_functions)
             {
-                result = new FunctionConfig();
-                m_controls[function] = result;
+                function.Update(state);
             }
-            return result;
-        }
-
-        public bool IsPressed(int function, ControlsState state)
-        {
-            return m_controls[function].IsPressed(state);
-        }
-
-        public bool JustPressed(int function, ControlsState state)
-        {
-            return m_controls[function].JustPressed(state);
-        }
-
-        public bool JustReleased(int function, ControlsState state)
-        {
-            return m_controls[function].JustReleased(state);
         }
     }
 }

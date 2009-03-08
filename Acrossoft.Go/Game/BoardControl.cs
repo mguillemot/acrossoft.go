@@ -37,13 +37,13 @@ namespace Acrossoft.Go.Game
 
         public void HighlightGroup(int id)
         {
-            m_boardcopy = new Board(m_board);
+            m_boardcopy = (Board) m_board.Clone();
             for (int i = 0; i < m_board.Size; i++)
             {
                 for (int j = 0; j < m_board.Size; j++)
                 {
                     if (m_boardex.GetGroupIndex(new Point(i, j)) != id)
-                        m_board.Set(i, j, Stone.NONE);
+                        m_board[i, j] = Stone.NONE;
                 }
             }
         }
@@ -54,7 +54,7 @@ namespace Acrossoft.Go.Game
             {
                 for (int j = 0; j < m_board.Size; j++)
                 {
-                    m_board.Set(i, j, m_boardcopy.Get(i,j));
+                    m_board[i, j] = m_boardcopy[i, j];
                 }
             }
         }
