@@ -56,14 +56,6 @@ namespace Acrossoft.Go
             m_boardDisplay = new BoardDisplay(m_board);
             m_boardDisplay.Initialize(GraphicsDevice);
 
-/*            for (int i = 1; i <= m_board.Size; i++)
-            {
-                for (int j = 1; j <= m_board.Size; j++)
-                {
-                    m_board.Set(i, j, (i+j)%2==0 ? Stone.WHITE : Stone.BLACK);
-                }
-            }*/
-
             m_arrow[0] = Keys.Left;
             m_arrow[1] = Keys.Up;
             m_arrow[2] = Keys.Right;
@@ -74,8 +66,8 @@ namespace Acrossoft.Go
                 m_arrowDown[i] = false;
             }
             m_buttonDown = false;
-            m_cursorPosition.X = 9;
-            m_cursorPosition.Y = 9;
+            m_cursorPosition.X = (m_board.Size - 1) / 2;
+            m_cursorPosition.Y = (m_board.Size - 1) / 2;
 
             m_color = Stone.BLACK;
 
@@ -142,8 +134,8 @@ namespace Acrossoft.Go
                     {
                         case 0: if (--m_cursorPosition.X < 0) { m_cursorPosition.X = 0; } break;
                         case 1: if (--m_cursorPosition.Y < 0) { m_cursorPosition.Y = 0; } break;
-                        case 2: if (++m_cursorPosition.X > 18) { m_cursorPosition.X = 18; } break;
-                        case 3: if (++m_cursorPosition.Y > 18) { m_cursorPosition.Y = 18; } break;
+                        case 2: if (++m_cursorPosition.X > m_board.Size - 1) { m_cursorPosition.X = m_board.Size - 1; } break;
+                        case 3: if (++m_cursorPosition.Y > m_board.Size - 1) { m_cursorPosition.Y = m_board.Size - 1; } break;
                     }
                 }
             }
@@ -155,7 +147,7 @@ namespace Acrossoft.Go
                 if (!m_buttonDown)
                 {
                     m_buttonDown = true;
-                    m_boardControl.Play(m_cursorPosition.X+1, m_cursorPosition.Y+1, m_color);
+                    m_boardControl.Play(m_cursorPosition, m_color);
 
                     m_color = (m_color == Stone.WHITE) ? Stone.BLACK : Stone.WHITE;
                 }

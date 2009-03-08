@@ -61,7 +61,7 @@ namespace Acrossoft.Go.Display
             {
                 for (int j = 1; j <= m_board.Size; j++)
                 {
-                    Stone stone = m_board.Get(i, j);
+                    Stone stone = m_board.Get(i-1, j-1);
                     if (stone != Stone.NONE)
                     {
                         Texture2D texture = (stone == Stone.BLACK) ? s_blackStoneTexture : s_whiteStoneTexture;

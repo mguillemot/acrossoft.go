@@ -21,5 +21,20 @@ namespace Acrossoft.GoUtils.Entities
         {
             get { return m_positions.Count; }
         }
+
+        public static Group operator +(Group g, Point p)
+        {
+            Group res = new Group();
+            res.m_positions.InsertRange(0, g.m_positions);
+            res.m_positions.Insert(res.Count, p);
+            return res;
+        }
+        public static Group operator +(Group l, Group r)
+        {
+            Group res = new Group();
+            res.m_positions.InsertRange(0, l.m_positions);
+            res.m_positions.InsertRange(res.Count, r.m_positions);
+            return res;
+        }
     }
 }

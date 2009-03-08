@@ -2,7 +2,8 @@
 
 namespace Acrossoft.GoUtils.Entities
 {
-
+    // Note d'Arl: Je dois avouer tres honnetement que c'est moche tout ca,
+    // mais je me suis pas mal engueulle avec le c# la, alors j'adopte cette solution temporairement
     public enum Dir
     {
             LEFT, UP, RIGHT, DOWN

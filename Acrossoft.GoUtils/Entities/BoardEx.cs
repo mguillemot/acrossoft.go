@@ -8,16 +8,16 @@ namespace Acrossoft.GoUtils.Entities
 {
 
     // extended board representation
-    class BoardEx
+    public class BoardEx
     {
         private readonly Board m_board;
         private readonly int[][] m_groupmap;
         private readonly List<Group> m_grouplist;
         private readonly List<Point> m_hotpoints; // indicates hot points (ex simple ko)
-        private readonly int m_npassinarow; // number of consecutive pass
-        private readonly int m_nbcapture;
-        private readonly int m_nwcapture;
-        private readonly int m_nmove;
+        private int m_npassinarow; // number of consecutive pass
+        private int m_nbcapture;
+        private int m_nwcapture;
+        private int m_nmove;
 
         public BoardEx(int size)
         {
@@ -27,6 +27,26 @@ namespace Acrossoft.GoUtils.Entities
             {
                 m_groupmap[i] = new int[size];
                 for (int j = 0; j < size; j++)
+                {
+                    m_groupmap[i][j] = -1;
+                }
+            }
+            m_grouplist = new List<Group>();
+            m_hotpoints = new List<Point>();
+            m_npassinarow = 0;
+            m_nbcapture = 0;
+            m_nwcapture = 0;
+            m_nmove = 0;
+        }
+
+        public BoardEx(Board board)
+        {
+            m_board = board;
+            m_groupmap = new int[Size][];
+            for (int i = 0; i < Size; i++)
+            {
+                m_groupmap[i] = new int[Size];
+                for (int j = 0; j < Size; j++)
                 {
                     m_groupmap[i][j] = -1;
                 }
@@ -66,16 +86,6 @@ namespace Acrossoft.GoUtils.Entities
             return m_board.Get(p.X, p.Y);
         }
 
- /*     public void Set(int x, int y, Stone value)
-        {
-            m_board.Set(x, y, value);
-        }
-
-        public Board Convert()
-        {
-            return m_board;
-        }*/
-
 
         // get some advanced properties
 
@@ -113,7 +123,11 @@ namespace Acrossoft.GoUtils.Entities
             int libcount = 0;
             for (Dir d = Dir.LEFT; d <= Dir.DOWN; ++d)
             {
-                if (Get(Op.Translate(p, d)) == Stone.NONE) ++libcount;
+                Point p1 = Op.Translate(p, d);
+                if (InBoard(p1) && (Get(p1) == Stone.NONE))
+                {
+                    ++libcount;
+                }
             }
             return libcount;
         }
@@ -125,13 +139,13 @@ namespace Acrossoft.GoUtils.Entities
             HashSet<Point> libset = new HashSet<Point>() ; // en esperant ne pas comparer les pointeurs ^^
             for (int i = 0; i < group.Count; ++i)
             {
-                Point p0 = group.At(i);
+                Point p = group.At(i);
                 for (Dir d = Dir.LEFT; d <= Dir.DOWN; ++d)
                 {
-                    Point p = Op.Translate(p0, d);
-                    if (Get(p) == Stone.NONE)
+                    Point p1 = Op.Translate(p, d);
+                    if (InBoard(p1) && (Get(p1) == Stone.NONE))
                     {
-                        libset.Add(p);
+                        libset.Add(p1);
                     }
                 }
             }
@@ -148,24 +162,27 @@ namespace Acrossoft.GoUtils.Entities
                 for (Dir d = Dir.LEFT; d <= Dir.DOWN; ++d)
                 {
                     Point p1 = Op.Translate(p, d);
-                    if (Get(p1) == color)
+                    if (InBoard(p1))
                     {
-                        // the stone is connecting to a group
-                        if (GetLibertyCount(GetGroup(p1)) > 1)
+                        if (Get(p1) == color)
                         {
-                            // the new formed group will have at least 1 liberty.
-                            res = false;
-                            break;
+                            // the stone is connecting to a group
+                            if (GetLibertyCount(GetGroup(p1)) > 1)
+                            {
+                                // the new formed group will have at least 1 liberty.
+                                res = false;
+                                break;
+                            }
                         }
-                    }
-                    else // opponent color)
-                    {
-                        // the stone is touching an opponent group
-                        if (GetLibertyCount(GetGroup(p1)) <= 1)
+                        else // opponent color
                         {
-                            // the opponent group liberties will be reduced to 0 (captured).
-                            res = false;
-                            break;
+                            // the stone is touching an opponent group
+                            if (GetLibertyCount(GetGroup(p1)) <= 1)
+                            {
+                                // the opponent group liberties will be reduced to 0 (captured).
+                                res = false;
+                                break;
+                            }
                         }
                     }
                 }
@@ -203,5 +220,87 @@ namespace Acrossoft.GoUtils.Entities
         //  - remove precedent hot point. (m_hotpoints.Clear())
         //  - if the move kills a lone stone at position p,
         //    and the killing stone becomes a lone stone, then p becomes a hot point. (m_hotpoints.Add(p))
+
+        public void Move(Point p, Stone color)
+        {
+            if (!InBoard(p) || Get(p)!=Stone.NONE)
+            {
+                // not only illegal, but impossible moves
+                return;
+            }
+
+            ++m_nmove;
+
+            //put the stone, as a new lone stone group
+            m_board.Set(p.X, p.Y, color);
+            Group newgroup = new Group() ;
+            newgroup += p;
+            int id = m_grouplist.Count;
+            m_grouplist.Add(new Group());
+            m_groupmap[p.X][p.Y] = id;
+
+            // list groups touched
+            HashSet<Group> touchedgroups = new HashSet<Group>();
+            for (Dir d = Dir.LEFT; d <= Dir.DOWN; ++d)
+            {
+                Point p1 = Op.Translate(p, d);
+                if (InBoard(p1) && (Get(p1) != Stone.NONE))
+                {
+                    touchedgroups.Add(GetGroup(p1)) ;
+                }
+            }
+
+            List<Group> opponents = new List<Group>();
+            List<Group> friends = new List<Group>();
+            for (int i = 0; i < touchedgroups.Count; ++i)
+            {
+                Group g = touchedgroups.ElementAt(i) ;
+                if (g.Count > 0 && (Get(g.At(0)) == color))
+                    friends.Add(g);
+                else
+                    opponents.Add(g);
+            }
+
+            // check liberties of opponent groups and remove if captured (ajusting capture count)
+/*            for (int i = 0; i < opponents.Count; ++i)
+            {
+                Group g = opponents[i];
+                if (GetLibertyCount(g) == 0)
+                {
+                    if (color == Stone.BLACK) m_nbcapture += g.Count;
+                    else m_nbcapture -= g.Count;
+                    Point p0 = g.At(0);
+                    RemoveGroup(m_groupmap[p0.X][p0.Y]);
+                }
+            }*/
+
+            // list white groups touched, connect them.
+            // test suicide (can be legal in some rule set)
+
+            //update hotpoints
+        }
+
+        public void RemoveGroup(int id)
+        {
+            Group g = m_grouplist[id];
+            for (int i = 0; i < g.Count; ++i)
+            {
+                Point p = g.At(i) ;
+                m_board.Set(p.X, p.Y, Stone.NONE) ;
+                m_groupmap[p.X][p.Y] = -1;
+            }
+
+            for (int i = 0; i < Size; i++)
+            {
+                for (int j = 0; j < Size; j++)
+                {
+                    if (m_groupmap[i][j] > id)
+                    {
+                        --m_groupmap[i][j];
+                    }
+                }
+            }
+        }
+
     }
 }

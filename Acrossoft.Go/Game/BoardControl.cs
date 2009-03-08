@@ -1,14 +1,17 @@
 ﻿using Acrossoft.GoUtils.Entities;
+using Microsoft.Xna.Framework;
 
 namespace Acrossoft.Go.Game
 {
     public class BoardControl
     {
         private readonly Board m_board;
+        private readonly BoardEx m_boardex;
 
         public BoardControl(Board board)
         {
             m_board = board;
+            m_boardex = new BoardEx(m_board);
         }
 
         public Board Board
@@ -16,26 +19,18 @@ namespace Acrossoft.Go.Game
             get { return m_board; }
         }
 
-        public bool CanPlay(int x, int y, Stone stone)
+        public bool CanPlay(Point p, Stone stone)
         {
-            if (!m_board.InBoard(x, y))
-            {
-                return false;
-            }
-            if (m_board.Get(x, y) != Stone.NONE)
-            {
-                return false;
-            }
-            return true;
+            return m_boardex.LegalMove(p, stone);
         }
 
-        public void Play(int x, int y, Stone stone)
+        public void Play(Point p, Stone stone)
         {
-            if (!CanPlay(x, y, stone))
+            if (!CanPlay(p, stone))
             {
                 return;
             }
-            m_board.Set(x, y, stone);
+            m_boardex.Move(p, stone);
         }
     }
 }

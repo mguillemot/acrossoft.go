@@ -26,17 +26,17 @@
 
         public bool InBoard(int x, int y)
         {
-            return 1 <= x && x <= m_size && 1 <= y && y <= m_size;
+            return 0 <= x && x <= m_size-1 && 0 <= y && y <= m_size-1;
         }
 
         public Stone Get(int x, int y)
         {
-            return m_content[x - 1][y - 1];
+            return m_content[x][y];
         }
 
         public void Set(int x, int y, Stone value)
         {
-            m_content[x - 1][y - 1] = value;
+            m_content[x][y] = value;
         }
 
     }
