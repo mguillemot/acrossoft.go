@@ -16,6 +16,8 @@ namespace Acrossoft.Go.Display
         private BufferedGeometryRenderer m_renderer;
         private Point m_cursorPosition;
 
+ //       private string m_infos;
+
         public BoardDisplay(Board board)
         {
             m_board = board;
@@ -105,5 +107,8 @@ namespace Acrossoft.Go.Display
         {
             m_cursorPosition = position ;
         }
+
+//        public void DrawInfos();
+//        public void SetInfo(string s);
     }
 }

@@ -59,7 +59,7 @@ namespace Acrossoft.GoUtils.Entities
             m_nmove = 0;
         }
 
-        // access to board members
+        // -- access to board members -- //
 
         public int Size
         {
@@ -87,8 +87,8 @@ namespace Acrossoft.GoUtils.Entities
         }
 
 
-        // get some advanced properties
-
+        // -- get some advanced properties -- //
+ 
         public int CaptureCount(Stone color)
         {
             return (color == Stone.BLACK) ? m_nbcapture : m_nwcapture;
@@ -104,7 +104,7 @@ namespace Acrossoft.GoUtils.Entities
             get { return m_npassinarow; }
         }
 
-        private int GetGroupIndex(Point p)
+        public int GetGroupIndex(Point p)
         {
             return m_groupmap[p.X][p.Y];
         }
@@ -116,8 +116,9 @@ namespace Acrossoft.GoUtils.Entities
         }
 
 
-        // liberties
+        // -- liberties/capture/suicide -- //
 
+        // get the number of neighbor empty point
         private int GetLocalLibertyCount(Point p)
         {
             int libcount = 0;
@@ -132,7 +133,7 @@ namespace Acrossoft.GoUtils.Entities
             return libcount;
         }
 
-        // Assume that group is not empty
+        // Assuming that 'group' is not empty
         public int GetLibertyCount(Group group)
         {
             //int id = GetGroupIndex(group.At(0));
@@ -152,7 +153,7 @@ namespace Acrossoft.GoUtils.Entities
             return libset.Count;
         }
 
-        // Assume p is empty (else, meaningless)
+        // Assuming p is empty (else, meaningless)
         public bool SuicidePlay(Point p, Stone color)
         {
             bool res = true;
@@ -195,6 +196,7 @@ namespace Acrossoft.GoUtils.Entities
             return res;
         }
 
+        // check if p is a hot point
         public bool HotPoint(Point p)
         {
             bool res = false;
@@ -209,18 +211,22 @@ namespace Acrossoft.GoUtils.Entities
             return res;
         }
 
-        // japanese rules, ko rule depending on hot points.
+        // check if legal move under japanese rules, ko rule depending on hot points.
         public bool LegalMove(Point p, Stone color)
         {
             return InBoard(p) && (Get(p) == Stone.NONE) && !HotPoint(p) && !SuicidePlay(p, color) ;             
         }
 
+
+        // Note d'Arl:
         // determining hot points (for simple ko only)
         // when putting a stone:
         //  - remove precedent hot point. (m_hotpoints.Clear())
         //  - if the move kills a lone stone at position p,
         //    and the killing stone becomes a lone stone, then p becomes a hot point. (m_hotpoints.Add(p))
 
+
+        // play any playable move (even illegal)
         public void Move(Point p, Stone color)
         {
             if (!InBoard(p) || Get(p)!=Stone.NONE)
@@ -236,7 +242,7 @@ namespace Acrossoft.GoUtils.Entities
             Group newgroup = new Group() ;
             newgroup += p;
             int id = m_grouplist.Count;
-            m_grouplist.Add(new Group());
+            m_grouplist.Add(newgroup);
             m_groupmap[p.X][p.Y] = id;
 
             // list groups touched
@@ -262,33 +268,45 @@ namespace Acrossoft.GoUtils.Entities
             }
 
             // check liberties of opponent groups and remove if captured (ajusting capture count)
-/*            for (int i = 0; i < opponents.Count; ++i)
+            for (int i = 0; i < opponents.Count; ++i)
             {
                 Group g = opponents[i];
                 if (GetLibertyCount(g) == 0)
                 {
                     if (color == Stone.BLACK) m_nbcapture += g.Count;
-                    else m_nbcapture -= g.Count;
+                    else m_nwcapture -= g.Count;
                     Point p0 = g.At(0);
                     RemoveGroup(m_groupmap[p0.X][p0.Y]);
                 }
-            }*/
+            }
+
+            id = m_grouplist.Count - 1; //id new group
 
             // list white groups touched, connect them.
+            for (int i = 0; i < friends.Count; ++i)
+            {
+                Group g = friends[i];
+                Point p0 = g.At(0);
+                int id0 = m_groupmap[p0.X][p0.Y]; //id group to merge
+                id = MergeGroup(id, id0); // id merged group
+            }
+
             // test suicide (can be legal in some rule set)
+            id = m_grouplist.Count - 1;
+            newgroup = m_grouplist[id];
+            if (GetLibertyCount(newgroup) == 0)
+            {
+                if (color == Stone.BLACK) m_nwcapture += newgroup.Count;
+                else m_nbcapture -= newgroup.Count;
+                RemoveGroup(id);
+            }
 
             //update hotpoints
         }
 
-        public void RemoveGroup(int id)
+        public void RemoveId(int id)
         {
-            Group g = m_grouplist[id];
-            for (int i = 0; i < g.Count; ++i)
-            {
-                Point p = g.At(i) ;
-                m_board.Set(p.X, p.Y, Stone.NONE) ;
-                m_groupmap[p.X][p.Y] = -1;
-            }
+            m_grouplist.RemoveAt(id);
 
             for (int i = 0; i < Size; i++)
             {
@@ -298,8 +316,41 @@ namespace Acrossoft.GoUtils.Entities
                     {
                         --m_groupmap[i][j];
                     }
+                    else if (m_groupmap[i][j] == id)
+                    {
+                        m_groupmap[i][j] = -1;
+                    }
                 }
             }
+        }
+
+        public void RemoveGroup(int id)
+        {
+            Group g = m_grouplist[id];
+            for (int i = 0; i < g.Count; ++i)
+            {
+                Point p = g.At(i) ;
+                m_board.Set(p.X, p.Y, Stone.NONE) ;
+            }
+            RemoveId(id);
+        }
+
+        public int MergeGroup(int id0, int id1)
+        {
+            if (id0 != id1)
+            {
+                //Group g0 = m_grouplist[id0];
+                Group g1 = m_grouplist[id1];
+                for (int i = 0; i < g1.Count; ++i)
+                {
+                    Point p = g1.At(i) ;
+                    m_groupmap[p.X][p.Y] = id0; // reindex
+                }
+                //g0 += g1;
+                m_grouplist[id0] += g1; // merge
+                RemoveId(id1); // remove old
+            }
+            return (id0 > id1) ? id0 - 1 : id0;
         }
 
     }

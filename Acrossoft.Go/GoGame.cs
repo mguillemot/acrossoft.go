@@ -27,6 +27,8 @@ namespace Acrossoft.Go
         private Point m_cursorPosition;
         private Stone m_color;
 
+        private bool m_groupdisplay; // debug display
+
         public GoGame()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -70,6 +72,7 @@ namespace Acrossoft.Go
             m_cursorPosition.Y = (m_board.Size - 1) / 2;
 
             m_color = Stone.BLACK;
+            m_groupdisplay = false;
 
             base.Initialize();
 
@@ -159,6 +162,41 @@ namespace Acrossoft.Go
             else
             {
                 m_buttonDown = false;
+            }
+
+            // display only a particular group (for debug)
+            bool numkeypressed = false;
+            int kd = 10;
+            if (Keyboard.GetState().IsKeyDown(Keys.NumPad0)) { kd = 0; numkeypressed = true; }
+            if (Keyboard.GetState().IsKeyDown(Keys.NumPad1)) { kd = 1; numkeypressed = true; }
+            if (Keyboard.GetState().IsKeyDown(Keys.NumPad2)) { kd = 2; numkeypressed = true; }
+            if (Keyboard.GetState().IsKeyDown(Keys.NumPad3)) { kd = 3; numkeypressed = true; }
+            if (Keyboard.GetState().IsKeyDown(Keys.NumPad4)) { kd = 4; numkeypressed = true; }
+            if (Keyboard.GetState().IsKeyDown(Keys.NumPad5)) { kd = 5; numkeypressed = true; }
+            if (Keyboard.GetState().IsKeyDown(Keys.NumPad6)) { kd = 6; numkeypressed = true; }
+            if (Keyboard.GetState().IsKeyDown(Keys.NumPad7)) { kd = 7; numkeypressed = true; }
+            if (Keyboard.GetState().IsKeyDown(Keys.NumPad8)) { kd = 8; numkeypressed = true; }
+            if (Keyboard.GetState().IsKeyDown(Keys.NumPad9)) { kd = 9; numkeypressed = true; }
+            
+            if (numkeypressed)
+            {
+                if (!m_groupdisplay)
+                {
+                    m_groupdisplay = true;
+                }
+                else
+                {
+                    m_boardControl.RestoreBoard();
+                }
+                m_boardControl.HighlightGroup(kd);
+            }
+            else
+            {
+                if (m_groupdisplay)
+                {
+                    m_boardControl.RestoreBoard();
+                    m_groupdisplay = false;
+                }
             }
 
             base.Update(gameTime);

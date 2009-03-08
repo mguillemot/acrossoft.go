@@ -19,6 +19,20 @@
             }
         }
 
+        public Board(Board board)
+        {
+            m_size = board.m_size;
+            m_content = new Stone[m_size][];
+            for (int i = 0; i < m_size; i++)
+            {
+                m_content[i] = new Stone[m_size];
+                for (int j = 0; j < m_size; j++)
+                {
+                    m_content[i][j] = board.m_content[i][j];
+                }
+            }
+        }
+
         public int Size
         {
             get { return m_size; }
