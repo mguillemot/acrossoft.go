@@ -150,9 +150,11 @@ namespace Acrossoft.Go
                 if (!m_buttonDown)
                 {
                     m_buttonDown = true;
-                    m_boardControl.Play(m_cursorPosition, m_color);
-
-                    m_color = (m_color == Stone.WHITE) ? Stone.BLACK : Stone.WHITE;
+                    if (m_boardControl.CanPlay(m_cursorPosition, m_color))
+                    {
+                        m_boardControl.Play(m_cursorPosition, m_color);
+                        m_color = (m_color == Stone.WHITE) ? Stone.BLACK : Stone.WHITE;
+                    }
                 }
                 else
                 {

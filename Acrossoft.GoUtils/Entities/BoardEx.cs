@@ -237,6 +237,10 @@ namespace Acrossoft.GoUtils.Entities
 
             ++m_nmove;
 
+            //update hotpoints (1) remove old
+            m_hotpoints.Clear();
+            bool kopossible = true;
+
             //put the stone, as a new lone stone group
             m_board.Set(p.X, p.Y, color);
             Group newgroup = new Group() ;
@@ -268,17 +272,21 @@ namespace Acrossoft.GoUtils.Entities
             }
 
             // check liberties of opponent groups and remove if captured (ajusting capture count)
+            int capturecount = 0; // simpleko test
             for (int i = 0; i < opponents.Count; ++i)
             {
                 Group g = opponents[i];
                 if (GetLibertyCount(g) == 0)
                 {
+                    capturecount += g.Count; // simpleko test
                     if (color == Stone.BLACK) m_nbcapture += g.Count;
                     else m_nwcapture -= g.Count;
                     Point p0 = g.At(0);
                     RemoveGroup(m_groupmap[p0.X][p0.Y]);
                 }
             }
+
+            if (capturecount != 1) kopossible = false; // simpleko test
 
             id = m_grouplist.Count - 1; //id new group
 
@@ -290,7 +298,7 @@ namespace Acrossoft.GoUtils.Entities
                 int id0 = m_groupmap[p0.X][p0.Y]; //id group to merge
                 id = MergeGroup(id, id0); // id merged group
             }
-
+            
             // test suicide (can be legal in some rule set)
             id = m_grouplist.Count - 1;
             newgroup = m_grouplist[id];
@@ -300,8 +308,24 @@ namespace Acrossoft.GoUtils.Entities
                 else m_nbcapture -= newgroup.Count;
                 RemoveGroup(id);
             }
-
-            //update hotpoints
+            else
+            {
+                //update hotpoints (2) add new
+                if (kopossible && (newgroup.Count == 1) && (GetLibertyCount(newgroup) == 1))
+                {
+                    Point p0 = newgroup.At(0);
+                    for (Dir d = Dir.LEFT; d <= Dir.DOWN; ++d)
+                    {
+                        Point p1 = Op.Translate(p0, d);
+                        if (InBoard(p1) && (Get(p1) == Stone.NONE))
+                        {
+                            m_hotpoints.Add(p1);
+                            break;
+                        }
+                    }
+                    
+                }
+            }
         }
 
         public void RemoveId(int id)
