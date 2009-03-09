@@ -168,8 +168,8 @@ namespace Acrossoft.GoUtils.Entities
         // Assuming that 'group' is not empty
         public int GetLibertyCount(Group group)
         {
-            //Utils.HashSet<Point> libset = new Utils.HashSet<Point>(); // apparement ca plante
-            HashSet<Point> libset = new HashSet<Point>();
+            Utils.HashSet<Point> libset = new Utils.HashSet<Point>(); // apparement ca plante
+            //HashSet<Point> libset = new HashSet<Point>();
             foreach (var p in group)
             {
                 for (Dir d = Dir.LEFT; d <= Dir.DOWN; ++d)
@@ -284,8 +284,8 @@ namespace Acrossoft.GoUtils.Entities
             m_groupmap[p.X,p.Y] = id;
 
             // list groups touched
-            //Utils.HashSet<Group> touchedgroups = new Utils.HashSet<Group>(); // apparement ca plante
-            HashSet<Group> touchedgroups = new HashSet<Group>();
+            Utils.HashSet<Group> touchedgroups = new Utils.HashSet<Group>(); // apparement ca plante
+            //HashSet<Group> touchedgroups = new HashSet<Group>();
             for (Dir d = Dir.LEFT; d <= Dir.DOWN; ++d)
             {
                 Point p1 = Op.Translate(p, d);

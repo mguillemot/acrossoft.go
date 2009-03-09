@@ -19,7 +19,10 @@ namespace Acrossoft.GoUtils.Utils
 
         public void Add(T value)
         {
-            m_content.Add(value, false);
+            if (!Contains(value))
+            {
+                m_content.Add(value, false);
+            }
         }
 
         public void Clear()
