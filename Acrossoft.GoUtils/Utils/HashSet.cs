@@ -17,9 +17,9 @@ namespace Acrossoft.GoUtils.Utils
             return m_content.ContainsKey(value);
         }
 
-        public void Add(T key)
+        public void Add(T value)
         {
-            m_content.Add(key, false);
+            m_content.Add(value, false);
         }
 
         public void Clear()

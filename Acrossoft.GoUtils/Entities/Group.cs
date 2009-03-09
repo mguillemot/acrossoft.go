@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
 namespace Acrossoft.GoUtils.Entities
 {
-    public class Group
+    public class Group : IEnumerable<Point>
     {
         private readonly List<Point> m_positions ;
 
@@ -12,14 +13,40 @@ namespace Acrossoft.GoUtils.Entities
             m_positions = new List<Point>();
         }
 
-        public Point At(int i)
+        public object Clone()
         {
-            return m_positions[i] ;
+            var clone = new Group();
+            foreach (var p in m_positions)
+            {
+                clone.m_positions.Add(new Point(p.X, p.Y));
+            }
+            return clone;
+        }
+
+        public void Clear()
+        {
+           m_positions.Clear();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+           return GetEnumerator();
+        }
+
+        public IEnumerator<Point> GetEnumerator()
+        {
+           return m_positions.GetEnumerator();
         }
 
         public int Count
         {
             get { return m_positions.Count; }
+        }
+
+        public Point this[int i]
+        {
+            get { return m_positions[i]; }
+            set { m_positions[i] = value; }
         }
 
         public static Group operator +(Group g, Point p)

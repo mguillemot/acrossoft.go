@@ -24,8 +24,12 @@ namespace Acrossoft.Go.Screens
         private Function m_upFunction;
         private Function m_downFunction;
         private Function m_leftFunction;
-        private Function m_playFunction;
         private Function m_rightFunction;
+        private Function m_playFunction;
+        private Function m_passFunction;
+
+        private bool m_mouseLeftPressed;
+        private bool m_mouseRightPressed;
 
         public BoardScreen(Microsoft.Xna.Framework.Game game)
             : base(game)
@@ -78,12 +82,19 @@ namespace Acrossoft.Go.Screens
             m_playFunction.AssignKey(Keys.Enter);
             m_playFunction.AssignButton(Buttons.A);
             controls.CurrentConfig.RegisterFunction(m_playFunction);
+            m_passFunction = new Function("boardPass");
+            m_passFunction.AssignKey(Keys.Space);
+            m_passFunction.AssignButton(Buttons.B);
+            controls.CurrentConfig.RegisterFunction(m_passFunction);
 
             m_cursorPosition.X = (m_board.Size - 1)/2;
             m_cursorPosition.Y = (m_board.Size - 1)/2;
 
             m_color = Stone.BLACK;
             m_groupdisplay = false;
+
+            m_mouseLeftPressed = false;
+            m_mouseRightPressed = false;
         }
 
         public override void Update(GameTime gameTime)
@@ -110,19 +121,33 @@ namespace Acrossoft.Go.Screens
             int mouseX = Mouse.GetState().X - m_boardDisplay.Position.X;
             int mouseY = Mouse.GetState().Y - m_boardDisplay.Position.Y;
             bool click = false;
+            bool rclick = false;
             if (mouseX >= 0 && mouseX < m_boardDisplay.Size && mouseY >= 0 && mouseY < m_boardDisplay.Size)
             {
                 m_cursorPosition = m_boardDisplay.ComputePositionFromObjetCoords(mouseX, mouseY);
-                if (Mouse.GetState().LeftButton == ButtonState.Pressed)
+                if (!m_mouseLeftPressed && (Mouse.GetState().LeftButton == ButtonState.Pressed))
                 {
                     click = true;
                 }
+                m_mouseLeftPressed = (Mouse.GetState().LeftButton == ButtonState.Pressed);
+                if (!m_mouseRightPressed && (Mouse.GetState().RightButton == ButtonState.Pressed))
+                {
+                    rclick = true;
+                }
+                m_mouseRightPressed = (Mouse.GetState().RightButton == ButtonState.Pressed);
             }
 
             m_boardDisplay.SetCursorPosition(m_cursorPosition);
             if ((m_playFunction.Triggered || click) && m_boardControl.CanPlay(m_cursorPosition, m_color))
             {
-                m_boardControl.Play(m_cursorPosition, m_color);
+                if (m_boardControl.Play(m_cursorPosition, m_color))
+                {
+                    m_color = (m_color == Stone.WHITE) ? Stone.BLACK : Stone.WHITE;
+                }
+            }
+            else if (m_passFunction.Triggered || rclick)
+            {
+                m_boardControl.Pass();
                 m_color = (m_color == Stone.WHITE) ? Stone.BLACK : Stone.WHITE;
             }
 

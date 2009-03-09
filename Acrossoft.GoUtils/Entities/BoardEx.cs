@@ -9,24 +9,24 @@ namespace Acrossoft.GoUtils.Entities
     public class BoardEx
     {
         private readonly Board m_board;
-        private readonly int[][] m_groupmap;
+        private readonly int[,] m_groupmap;
         private readonly List<Group> m_grouplist;
         private readonly List<Point> m_hotpoints; // indicates hot points (ex simple ko)
         private int m_npassinarow; // number of consecutive pass
         private int m_nbcapture;
         private int m_nwcapture;
         private int m_nmove;
+        private Stone m_color;
 
         public BoardEx(int size)
         {
             m_board = new Board(size);
-            m_groupmap = new int[size][];
+            m_groupmap = new int[size, size];
             for (int i = 0; i < size; i++)
             {
-                m_groupmap[i] = new int[size];
                 for (int j = 0; j < size; j++)
                 {
-                    m_groupmap[i][j] = -1;
+                    m_groupmap[i,j] = -1;
                 }
             }
             m_grouplist = new List<Group>();
@@ -35,18 +35,19 @@ namespace Acrossoft.GoUtils.Entities
             m_nbcapture = 0;
             m_nwcapture = 0;
             m_nmove = 0;
+            m_color = Stone.BLACK;
         }
 
+        // Assumption: empty board
         public BoardEx(Board board)
         {
             m_board = board;
-            m_groupmap = new int[Size][];
+            m_groupmap = new int[Size, Size];
             for (int i = 0; i < Size; i++)
             {
-                m_groupmap[i] = new int[Size];
                 for (int j = 0; j < Size; j++)
                 {
-                    m_groupmap[i][j] = -1;
+                    m_groupmap[i,j] = -1;
                 }
             }
             m_grouplist = new List<Group>();
@@ -55,6 +56,34 @@ namespace Acrossoft.GoUtils.Entities
             m_nbcapture = 0;
             m_nwcapture = 0;
             m_nmove = 0;
+            m_color = Stone.BLACK;
+        }
+
+        public object Clone()
+        {
+            var clone = new BoardEx( (Board)m_board.Clone() );
+
+            for (int i = 0; i < Size; i++)
+            {
+                for (int j = 0; j < Size; j++)
+                {
+                    clone.m_groupmap[i, j] = m_groupmap[i, j];
+                }
+            }
+            foreach (var g in m_grouplist)
+            {
+                clone.m_grouplist.Add((Group)g.Clone());
+            }
+            foreach (var p in m_hotpoints)
+            {
+                clone.m_hotpoints.Add(new Point(p.X, p.Y));
+            }
+            clone.m_npassinarow = m_npassinarow;
+            clone.m_nbcapture = m_nbcapture;
+            clone.m_nwcapture = m_nwcapture;
+            clone.m_nmove = m_nmove;
+            clone.m_color = m_color;
+            return clone;
         }
 
         // -- access to board members -- //
@@ -94,7 +123,7 @@ namespace Acrossoft.GoUtils.Entities
 
         public int MoveCount
         {
-            get { return m_nmove ; }
+            get { return m_nmove; }
         }
 
         public int PassCount
@@ -102,9 +131,14 @@ namespace Acrossoft.GoUtils.Entities
             get { return m_npassinarow; }
         }
 
+        public Stone Color
+        {
+            get { return m_color; }
+        }
+
         public int GetGroupIndex(Point p)
         {
-            return m_groupmap[p.X][p.Y];
+            return m_groupmap[p.X,p.Y];
         }
 
         public Group GetGroup(Point p)
@@ -134,11 +168,10 @@ namespace Acrossoft.GoUtils.Entities
         // Assuming that 'group' is not empty
         public int GetLibertyCount(Group group)
         {
-            //int id = GetGroupIndex(group.At(0));
-            Utils.HashSet<Point> libset = new Utils.HashSet<Point>(); // en esperant ne pas comparer les pointeurs ^^
-            for (int i = 0; i < group.Count; ++i)
+            //Utils.HashSet<Point> libset = new Utils.HashSet<Point>(); // apparement ca plante
+            HashSet<Point> libset = new HashSet<Point>();
+            foreach (var p in group)
             {
-                Point p = group.At(i);
                 for (Dir d = Dir.LEFT; d <= Dir.DOWN; ++d)
                 {
                     Point p1 = Op.Translate(p, d);
@@ -198,9 +231,9 @@ namespace Acrossoft.GoUtils.Entities
         public bool HotPoint(Point p)
         {
             bool res = false;
-            for (int i = 0; i < m_hotpoints.Count; ++i)
+            foreach (var hp in m_hotpoints)
             {
-                if (m_hotpoints[i] == p)
+                if (hp == p)
                 {
                     res = true;
                     break;
@@ -209,30 +242,33 @@ namespace Acrossoft.GoUtils.Entities
             return res;
         }
 
+
+        // -- in fact, for Move/LegalMove, the color parameter is useless -> to remove ?
+        //    the color can be checked using "Color" accessor
+
         // check if legal move under japanese rules, ko rule depending on hot points.
         public bool LegalMove(Point p, Stone color)
         {
-            return InBoard(p) && (Get(p) == Stone.NONE) && !HotPoint(p) && !SuicidePlay(p, color) ;             
+            return InBoard(p) && (Get(p) == Stone.NONE) && (color==m_color) && !HotPoint(p) && !SuicidePlay(p, color) ;             
         }
 
-
-        // Note d'Arl:
-        // determining hot points (for simple ko only)
-        // when putting a stone:
-        //  - remove precedent hot point. (m_hotpoints.Clear())
-        //  - if the move kills a lone stone at position p,
-        //    and the killing stone becomes a lone stone, then p becomes a hot point. (m_hotpoints.Add(p))
-
-
-        // play any playable move (even illegal)
-        public void Move(Point p, Stone color)
+        public void Pass()
         {
-            if (!InBoard(p) || Get(p)!=Stone.NONE)
+            ++m_npassinarow;
+            m_color = (m_color == Stone.BLACK) ? Stone.WHITE : Stone.BLACK;
+        }
+
+        // play any playable move (even illegal ones)
+        // return false if the move is unplayable
+        public bool Move(Point p, Stone color)
+        {
+            if (!InBoard(p) || Get(p)!=Stone.NONE || color!=m_color)
             {
                 // not only illegal, but impossible moves
-                return;
+                return false;
             }
 
+            m_npassinarow = 0;
             ++m_nmove;
 
             //update hotpoints (1) remove old
@@ -245,10 +281,11 @@ namespace Acrossoft.GoUtils.Entities
             newgroup += p;
             int id = m_grouplist.Count;
             m_grouplist.Add(newgroup);
-            m_groupmap[p.X][p.Y] = id;
+            m_groupmap[p.X,p.Y] = id;
 
             // list groups touched
-            Utils.HashSet<Group> touchedgroups = new Utils.HashSet<Group>();
+            //Utils.HashSet<Group> touchedgroups = new Utils.HashSet<Group>(); // apparement ca plante
+            HashSet<Group> touchedgroups = new HashSet<Group>();
             for (Dir d = Dir.LEFT; d <= Dir.DOWN; ++d)
             {
                 Point p1 = Op.Translate(p, d);
@@ -262,7 +299,7 @@ namespace Acrossoft.GoUtils.Entities
             List<Group> friends = new List<Group>();
             foreach (var g in touchedgroups)
             {
-                if (g.Count > 0 && (Get(g.At(0)) == color))
+                if (g.Count > 0 && (Get(g[0]) == color))
                     friends.Add(g);
                 else
                     opponents.Add(g);
@@ -270,16 +307,15 @@ namespace Acrossoft.GoUtils.Entities
 
             // check liberties of opponent groups and remove if captured (ajusting capture count)
             int capturecount = 0; // simpleko test
-            for (int i = 0; i < opponents.Count; ++i)
+            foreach (var g in opponents)
             {
-                Group g = opponents[i];
                 if (GetLibertyCount(g) == 0)
                 {
                     capturecount += g.Count; // simpleko test
                     if (color == Stone.BLACK) m_nbcapture += g.Count;
                     else m_nwcapture -= g.Count;
-                    Point p0 = g.At(0);
-                    RemoveGroup(m_groupmap[p0.X][p0.Y]);
+                    Point p0 = g[0];
+                    RemoveGroup(m_groupmap[p0.X,p0.Y]);
                 }
             }
 
@@ -288,11 +324,10 @@ namespace Acrossoft.GoUtils.Entities
             id = m_grouplist.Count - 1; //id new group
 
             // list white groups touched, connect them.
-            for (int i = 0; i < friends.Count; ++i)
+            foreach (var g in friends)
             {
-                Group g = friends[i];
-                Point p0 = g.At(0);
-                int id0 = m_groupmap[p0.X][p0.Y]; //id group to merge
+                Point p0 = g[0];
+                int id0 = m_groupmap[p0.X,p0.Y]; //id group to merge
                 id = MergeGroup(id, id0); // id merged group
             }
             
@@ -310,7 +345,7 @@ namespace Acrossoft.GoUtils.Entities
                 //update hotpoints (2) add new
                 if (kopossible && (newgroup.Count == 1) && (GetLibertyCount(newgroup) == 1))
                 {
-                    Point p0 = newgroup.At(0);
+                    Point p0 = newgroup[0];
                     for (Dir d = Dir.LEFT; d <= Dir.DOWN; ++d)
                     {
                         Point p1 = Op.Translate(p0, d);
@@ -323,6 +358,9 @@ namespace Acrossoft.GoUtils.Entities
                     
                 }
             }
+
+            m_color = (m_color == Stone.BLACK) ? Stone.WHITE : Stone.BLACK;
+            return true;
         }
 
         public void RemoveId(int id)
@@ -333,13 +371,13 @@ namespace Acrossoft.GoUtils.Entities
             {
                 for (int j = 0; j < Size; j++)
                 {
-                    if (m_groupmap[i][j] > id)
+                    if (m_groupmap[i,j] > id)
                     {
-                        --m_groupmap[i][j];
+                        --m_groupmap[i,j];
                     }
-                    else if (m_groupmap[i][j] == id)
+                    else if (m_groupmap[i,j] == id)
                     {
-                        m_groupmap[i][j] = -1;
+                        m_groupmap[i,j] = -1;
                     }
                 }
             }
@@ -348,9 +386,8 @@ namespace Acrossoft.GoUtils.Entities
         public void RemoveGroup(int id)
         {
             Group g = m_grouplist[id];
-            for (int i = 0; i < g.Count; ++i)
+            foreach (var p in g)
             {
-                Point p = g.At(i) ;
                 m_board[p.X, p.Y] = Stone.NONE;
             }
             RemoveId(id);
@@ -360,14 +397,11 @@ namespace Acrossoft.GoUtils.Entities
         {
             if (id0 != id1)
             {
-                //Group g0 = m_grouplist[id0];
                 Group g1 = m_grouplist[id1];
-                for (int i = 0; i < g1.Count; ++i)
+                foreach (var p in g1)
                 {
-                    Point p = g1.At(i) ;
-                    m_groupmap[p.X][p.Y] = id0; // reindex
+                    m_groupmap[p.X,p.Y] = id0; // reindex
                 }
-                //g0 += g1;
                 m_grouplist[id0] += g1; // merge
                 RemoveId(id1); // remove old
             }

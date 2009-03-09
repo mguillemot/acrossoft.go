@@ -26,13 +26,18 @@ namespace Acrossoft.Go.Game
             return m_boardex.LegalMove(p, stone);
         }
 
-        public void Play(Point p, Stone stone)
+        public bool Play(Point p, Stone stone)
         {
             if (!CanPlay(p, stone))
             {
-                return;
+                return false;
             }
-            m_boardex.Move(p, stone);
+            return m_boardex.Move(p, stone);
+        }
+
+        public void Pass()
+        {
+            m_boardex.Pass();
         }
 
         public void HighlightGroup(int id)
