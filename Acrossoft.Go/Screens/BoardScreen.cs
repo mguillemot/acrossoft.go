@@ -17,7 +17,6 @@ namespace Acrossoft.Go.Screens
         private Board m_enemyBoard;
         private BoardDisplay m_enemyBoardDisplay;
 
-        private Stone m_color;
         private Point m_cursorPosition;
         private bool m_groupdisplay; // debug display
 
@@ -90,7 +89,6 @@ namespace Acrossoft.Go.Screens
             m_cursorPosition.X = (m_board.Size - 1)/2;
             m_cursorPosition.Y = (m_board.Size - 1)/2;
 
-            m_color = Stone.BLACK;
             m_groupdisplay = false;
 
             m_mouseLeftPressed = false;
@@ -138,17 +136,17 @@ namespace Acrossoft.Go.Screens
             }
 
             m_boardDisplay.SetCursorPosition(m_cursorPosition);
-            if ((m_playFunction.Triggered || click) && m_boardControl.CanPlay(m_cursorPosition, m_color))
+            if ((m_playFunction.Triggered || click) && m_boardControl.CanPlay(m_cursorPosition))
             {
-                if (m_boardControl.Play(m_cursorPosition, m_color))
+                if (m_boardControl.Play(m_cursorPosition))
                 {
-                    m_color = (m_color == Stone.WHITE) ? Stone.BLACK : Stone.WHITE;
+                    m_boardControl.PlayAi();
                 }
             }
             else if (m_passFunction.Triggered || rclick)
             {
                 m_boardControl.Pass();
-                m_color = (m_color == Stone.WHITE) ? Stone.BLACK : Stone.WHITE;
+                m_boardControl.PlayAi();
             }
 
             // display only a particular group (for debug)

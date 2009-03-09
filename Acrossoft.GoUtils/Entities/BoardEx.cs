@@ -247,9 +247,9 @@ namespace Acrossoft.GoUtils.Entities
         //    the color can be checked using "Color" accessor
 
         // check if legal move under japanese rules, ko rule depending on hot points.
-        public bool LegalMove(Point p, Stone color)
+        public bool LegalMove(Point p)
         {
-            return InBoard(p) && (Get(p) == Stone.NONE) && (color==m_color) && !HotPoint(p) && !SuicidePlay(p, color) ;             
+            return InBoard(p) && (Get(p) == Stone.NONE) && !HotPoint(p) && !SuicidePlay(p, m_color) ;             
         }
 
         public void Pass()
@@ -260,9 +260,9 @@ namespace Acrossoft.GoUtils.Entities
 
         // play any playable move (even illegal ones)
         // return false if the move is unplayable
-        public bool Move(Point p, Stone color)
+        public bool Move(Point p)
         {
-            if (!InBoard(p) || Get(p)!=Stone.NONE || color!=m_color)
+            if (!InBoard(p) || Get(p)!=Stone.NONE)
             {
                 // not only illegal, but impossible moves
                 return false;
@@ -276,7 +276,7 @@ namespace Acrossoft.GoUtils.Entities
             bool kopossible = true;
 
             //put the stone, as a new lone stone group
-            m_board[p.X, p.Y] = color;
+            m_board[p.X, p.Y] = m_color;
             Group newgroup = new Group() ;
             newgroup += p;
             int id = m_grouplist.Count;
@@ -299,7 +299,7 @@ namespace Acrossoft.GoUtils.Entities
             List<Group> friends = new List<Group>();
             foreach (var g in touchedgroups)
             {
-                if (g.Count > 0 && (Get(g[0]) == color))
+                if (g.Count > 0 && (Get(g[0]) == m_color))
                     friends.Add(g);
                 else
                     opponents.Add(g);
@@ -312,7 +312,7 @@ namespace Acrossoft.GoUtils.Entities
                 if (GetLibertyCount(g) == 0)
                 {
                     capturecount += g.Count; // simpleko test
-                    if (color == Stone.BLACK) m_nbcapture += g.Count;
+                    if (m_color == Stone.BLACK) m_nbcapture += g.Count;
                     else m_nwcapture -= g.Count;
                     Point p0 = g[0];
                     RemoveGroup(m_groupmap[p0.X,p0.Y]);
@@ -336,7 +336,7 @@ namespace Acrossoft.GoUtils.Entities
             newgroup = m_grouplist[id];
             if (GetLibertyCount(newgroup) == 0)
             {
-                if (color == Stone.BLACK) m_nwcapture += newgroup.Count;
+                if (m_color == Stone.BLACK) m_nwcapture += newgroup.Count;
                 else m_nbcapture -= newgroup.Count;
                 RemoveGroup(id);
             }

@@ -1,4 +1,5 @@
 ﻿using Acrossoft.GoUtils.Entities;
+using Acrossoft.GoAi;
 using Microsoft.Xna.Framework;
 
 namespace Acrossoft.Go.Game
@@ -7,6 +8,7 @@ namespace Acrossoft.Go.Game
     {
         private readonly Board m_board;
         private readonly BoardEx m_boardex;
+        private readonly Ai m_ai;
 
         private Board m_boardcopy; // debug display
 
@@ -14,6 +16,8 @@ namespace Acrossoft.Go.Game
         {
             m_board = board;
             m_boardex = new BoardEx(m_board);
+            m_ai = new Ai(board.Size);
+            m_ai.Set(m_boardex);
         }
 
         public Board Board
@@ -21,23 +25,55 @@ namespace Acrossoft.Go.Game
             get { return m_board; }
         }
 
-        public bool CanPlay(Point p, Stone stone)
+        public bool MyTurnToPlay(Stone color)
         {
-            return m_boardex.LegalMove(p, stone);
+            return (m_boardex.Color == color);
         }
 
-        public bool Play(Point p, Stone stone)
+        public bool CanPlay(Point p)
         {
-            if (!CanPlay(p, stone))
+            return m_boardex.LegalMove(p);
+        }
+
+        public void PlayAi()
+        {
+            Point best = m_ai.BestMove();
+            bool pass = false;
+            if (!CanPlay(best))
             {
-                return false;
+                pass = true;
             }
-            return m_boardex.Move(p, stone);
+            if (!pass)
+            {
+                if (!Play(best))
+                {
+                    pass = true;
+                }
+            }
+            if (pass)
+            {
+                Pass();
+            }
+        }
+
+        public bool Play(Point p)
+        {
+            bool played = false;
+            if (CanPlay(p))
+            {
+                if (m_boardex.Move(p))
+                {
+                    m_ai.Move(p);
+                    played = true;
+                }
+            }
+            return played;
         }
 
         public void Pass()
         {
             m_boardex.Pass();
+            m_ai.Pass();
         }
 
         public void HighlightGroup(int id)
